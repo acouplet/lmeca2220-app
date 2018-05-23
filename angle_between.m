@@ -4,8 +4,8 @@ function isBetween = angle_between(n,a,b)
     b = mod(100*pi + b, 2*pi);
 
     if (a<b)
-        isBetween = (a <= n & n <= b);
+        isBetween = (a < n & n < b);
     else
-        isBetween = (a <= n | n <= b);
+        isBetween = (a < n | n < b);
     end
 end
