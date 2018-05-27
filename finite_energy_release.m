@@ -50,22 +50,52 @@ for i = 1:size(theta,2)-1
     Problem.p(i+1) = Problem.p(i) + dtheta*Problem.dpdth(i);
     Problem.m(i+1) = Problem.m(i) + dtheta*Problem.dmdth(i);
     Problem.T(i+1) = Problem.T(i) + dtheta*Problem.dTdth(i);
+    Problem.m(i+1) = Problem.m(i) + dtheta*Problem.dmdth(i);
     if (Problem.Ai(i) + Problem.Ae(i) == 0)
         Problem.T(i+1) = Problem.V(i+1)*Problem.p(i+1)/Problem.m(i+1)/Problem.Rair;
     end
 end
-
-
+rho0 = Problem.pin/Problem.Rair/Problem.Tin;
+totdeb = Problem.dmidth;
+totdeb(totdeb==0) = [];
+dVidth_int = sum(totdeb)/rho0/Problem.cycles; %integrale de dVidth
+tb = (Problem.ipc - Problem.ipo)/(Problem.N*2*pi); %scavening time [s]
+sc = dVidth_int*tb/Problem.Vd;
+Problem.sc = sc; %scavening coefficient
+Vscave = Problem.iph*(pi/4)*(Problem.b)^2; % Intake Scavenging volume
+c = 1  - Vscave/Problem.Vd;
+if (sc <= (c+1/(Problem.r-1)))
+    eta_vol = sc;
+else
+    eta_vol = c+1/(Problem.r-1);
+end
+Problem.eta_vol = eta_vol;
+fprintf('Scanvenging coefficient: %.3f\n', Problem.sc);
+fprintf('Volumetric efficiency: %.3f\n', Problem.eta_vol);
 
 if (plt == 1)
-    figure();
-    yyaxis left;
-    plot(theta*180/pi,[Problem.p]); grid;
-    yyaxis right;
-    plot(theta*180/pi,[Problem.dmidth;Problem.dmedth]);
-
-    figure();
-    plot(theta*180/pi,Problem.m); grid;
+     figure();
+     yyaxis left;
+     plot(theta*180/pi,[Problem.p]); grid;
+     xlabel('Crank angle $\theta$ [$^\circ$]','interpreter','latex');
+     ylabel('Pressure [$Pa$]','interpreter','latex');
+     yyaxis right;
+     plot(theta*180/pi,[Problem.T]); grid;
+     xlabel('Crank angle $\theta$ [$^\circ$]','interpreter','latex');
+     ylabel('Temperature [$K$]','interpreter','latex');
+     figure();
+     yyaxis left;
+     plot(theta*180/pi,[Problem.dmedth]);
+     xlabel('Crank angle $\theta$ [$^\circ$]','interpreter','latex');
+     ylabel('Exhaust flux [$kg/s$]','interpreter','latex');
+     yyaxis right;
+     plot(theta*180/pi,[Problem.dmidth]);
+     xlabel('Crank angle $\theta$ [$^\circ$]','interpreter','latex');
+     ylabel('Intake flux [$kg/s$]','interpreter','latex');
+     figure();
+     plot(theta*180/pi,Problem.m); grid;
+     xlabel('Crank angle $\theta$ [$^\circ$]','interpreter','latex');
+     ylabel('masse[$kg$]','interpreter','latex');
 end
 
 end

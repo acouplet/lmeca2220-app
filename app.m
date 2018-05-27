@@ -27,7 +27,7 @@ Problem.exh_lead = 9.2*pi/180;        % Exhaust piston leading angle [rad]
 
 Problem.gamma = 1.4;        % Adiabatic coefficient [-]
 Problem.Rair  = 287.1;      % Air specific gas constant [J/kg/K]
-Problem.cv    = 718;        % Constant pressure heat capacity [J/kg/K]
+Problem.cv    = 718;        % Constant volume heat capacity [J/kg/K]
 Problem.phi   = 0.6;        % Fuel-air equivalence ratio
 Problem.ma1   = 14.5;       % Stoichiometric air-fuel ratio
 Problem.LHV   = 43e6;       % Lower heating value [J/kg]
@@ -35,23 +35,22 @@ Problem.thd   = 30*pi/180;  % duration of energy release [rad]
 Problem.ths   = -20*pi/180; % start of energy release [rad]
 Problem.dcoef = 0.6;        % Discharge coefficient [-]
 Problem.combustion = 1;
-Problem.FMEP0 = 50e3;
-Problem.ks = 0.025;
-Problem.kv = 0.6125e3;
+Problem.FMEP0 = 50e3;       %cst term [kPa]
+Problem.ks = 0.025;         %proportionality coefficient
+Problem.kv = 0.6125e3;      %viscosity coefficient
 
 % Quick calculations
 Problem.omega = Problem.N*2*pi;
 Problem.cp = Problem.gamma*Problem.cv;
 Problem.Up = 2*Problem.N*Problem.s; % Piston mean velocity [m/s]
 
-Problem.cycles = 10;
+Problem.cycles = 3;
 Problem.precision = 10000;
 theta = linspace(Problem.ipc,Problem.cycles*2*pi+Problem.ipc,Problem.cycles*Problem.precision);
 
-Problem = volume(Problem, theta, 0);
-Problem = cumulative_energy_release(Problem, theta, 0); % Correct for 4S engine
-Problem = finite_energy_release(Problem, theta, 1);
+Problem = volume(Problem, theta, 1);
+Problem = cumulative_energy_release(Problem, theta, 1); % Correct for 4S engine
+Problem = finite_energy_release(Problem, theta, 1); %pressure, intake flux and masse
 Problem = MEPs(Problem, theta, 1); % Only last cycle is taken into account
-
 
 end
